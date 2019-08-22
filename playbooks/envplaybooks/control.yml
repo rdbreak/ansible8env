@@ -1,0 +1,94 @@
+---
+- hosts: control
+  strategy: free 
+  gather_facts: False
+  become: true
+  tasks:
+  - name: Setting Hostname
+    command: hostnamectl set-hostname control.test.example.com
+  - name: Creating Ansible User
+    user:
+      name: user
+      shell: /bin/bash
+      groups: wheel
+      append: yes
+  - name: Changing User Password
+    shell: echo password | sudo passwd user --stdin
+#  - name: Installing Ansible Tower
+#    shell: wget http://releases.ansible.com/ansible-tower/setup/ansible-tower-setup-3.5.2-1.tar.gz ; tar -xzvf ansible-tower-setup-3.5.2-1.tar.gz ; cd ansible-tower-setup-3.5.2-1/
+#  - name: Configuring Inventory File
+#    shell: echo '\n[tower]\nlocalhost ansible_connection=local\n\n[database]\n[all:vars]\nadmin_password='password'\npg_host=''\npg_port=''\n\n pg_database='user'\n pg_username='user'\n pg_password='password'\n\n rabbitmq_port=5672\n rabbitmq_vhost=tower\n rabbitmq_username=tower\n rabbitmq_password='password'\n rabbitmq_cookie=cookiemonster\n\n rabbitmq_use_long_name=false'
+#  - name: Configuring Inventory File
+#    shell: bash /home/vagrant/ansible-tower-setup-3.5.2-1/setup.sh
+  - name: Fixing hosts file
+    lineinfile:
+      dest: /etc/hosts
+      regexp: '^127\.0\.0\.1'
+      state: absent
+  - name: Rebuilding host file
+    lineinfile:
+      path: /etc/hosts
+      line: 127.0.0.1   localhost localhost.localdomain localhost4 localhost4.localdomain4
+      create: yes
+  - name: Adding control address to hosts file
+    lineinfile:
+      path: /etc/hosts
+      line: 192.168.55.60 control.test.example.com control
+      create: yes
+  - name: Adding Repo address to hosts file
+    lineinfile:
+      path: /etc/hosts
+      line: 192.168.55.59 repo.test.example.com repo
+      create: yes
+  - name: Adding node1 IP address to hosts file
+    lineinfile:
+      path: /etc/hosts
+      line: 192.168.55.61 node1.test.example.com node1
+      create: yes
+  - name: Adding node2 IP address to hosts file
+    lineinfile:
+      path: /etc/hosts
+      line: 192.168.55.62 node2.test.example.com node2
+      create: yes
+#  - name: Configuring network
+#    shell: nmcli con mod "System eth0" ipv4.addresses 192.168.55.60/24 ipv4.gateway 192.168.55.1 ipv4.dns 8.8.8.8 ipv4.method manual
+#  - name: Restarted Network
+#    shell: nmcli con up "System eth0"
+  - name: Starting Firewalld
+    service: name=firewalld state=started
+  - name: Enabling Firewall Services
+    command: firewall-cmd --permanent --add-service=http --add-service=https --add-service=ntp --add-service=dns --add-service=kerberos --add-service=ldap --add-service=ldaps --add-service=ftp
+  - name: Generating RSA Key
+    command : ssh-keygen -q -t rsa -f /home/user/.ssh/id_rsa -C "" -N ""
+    become: yes
+    become_user: user
+  - name: Creating Welcome Message
+    file:
+      path: /etc/profile.d/welcome.sh
+      state: touch
+      mode: 0755
+  - name: Building Welcome Message
+    blockinfile:
+      dest: /etc/profile.d/welcome.sh
+      block: |
+        #!/bin/bash
+        #
+        echo -e '       
+        #            _            _           _          _           _          _           _     
+        #          /\ \          /\ \        /\ \     _ /\ \        /\ \       /\ \        _\ \   
+        #         /  \ \        /  \ \      /  \ \   /\_\_\ \      /  \ \     /  \ \      /\__ \  
+        #        / /\ \ \      / /\ \ \    / /\ \ \_/ / /\__ \    / /\ \ \   / /\ \ \    / /_ \_\ 
+        #       / / /\ \ \    / / /\ \ \  / / /\ \___/ / /_ \ \  / / /\ \_\ / / /\ \ \  / / /\/_/ 
+        #      / / /  \ \_\  / / /  \ \_\/ / /  \/____/ / /\ \ \/ / /_/ / // / /  \ \_\/ / /      
+        #     / / /    \/_/ / / /   / / / / /    / / / / /  \/_/ / /__\/ // / /   / / / / /       
+        #    / / /         / / /   / / / / /    / / / / /     / / /_____// / /   / / / / / ____   
+        #   / / /________ / / /___/ / / / /    / / / / /     / / /\ \ \ / / /___/ / / /_/_/ ___/\ 
+        #  / / /_________/ / /____\/ / / /    / / /_/ /     / / /  \ \ / / /____\/ /_______/\__\/ 
+        #  \/____________\/_________/\/_/     \/_/\_\/      \/_/    \_\\/_________/\_______\/     
+        '"#
+        #
+         # You are logged into \"`hostname`\" as user \"`whoami`\"
+        # This system is running `cat /etc/redhat-release`
+        # kernel is `uname -r`
+        #
+        "

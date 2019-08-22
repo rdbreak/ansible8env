@@ -1,0 +1,36 @@
+---
+- hosts: control
+  tasks: 
+  - name: Sending Key to node1
+    expect:
+      command: ssh-copy-id -i /home/user/.ssh/id_rsa.pub user@node1.test.example.com 
+      responses:
+        'Are you sure you want to continue connecting': 'yes'
+        'password': 'password'
+        '\]\$': 'logout'
+      timeout: 10
+    become: yes
+    become_user: user
+    ignore_errors: yes
+  - name: Sending Key to node2
+    expect:
+      command: ssh-copy-id -i /home/user/.ssh/id_rsa.pub user@node2.test.example.com 
+      responses:
+        'Are you sure you want to continue connecting': 'yes'
+        'password': 'password'
+        '\]\$': 'logout'
+      timeout: 10
+    become: yes
+    become_user: user
+    ignore_errors: yes
+  - name: Welcome to the Ansible 8 Study/Test Environment!
+    debug:
+      msg:
+        - 'Next Steps: Accessing The Systems:'
+        - '- Control - 192.168.55.60'
+        - '- System 1 - 192.168.55.61'
+        - '- System 2 - 192.168.55.62'
+        - '- Username - user'
+        - '- Password - password'
+        - '- For root - use `sudo` or `sudo su`'
+        - '- Access example - ssh user@192.168.55.60'

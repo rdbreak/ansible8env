@@ -1,0 +1,7 @@
+---
+- hosts: nodes
+  tasks:
+  - name: Gathering IP addresses
+    template:
+      src: ~/bin/ansible/coursework/templates/network.j2
+      dest: ~/bin/ansible/coursework/templates/
