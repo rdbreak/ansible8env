@@ -33,8 +33,8 @@ sudo snap install ruby ; sudo apt install ruby-bundler git -y; wget -c https://r
 
 ##### Once the above software is installed. Do the following if you're running the environment on Mac/Linux:
 1. Create a separate `~/bin` directory and `cd` to it.  (The directory doesn't have to be ~/bin, it can be anything you want.)
-2. Clone the environment repo to it with `git clone https://github.com/rdbreak/ansible27env.git`
-3. Change to the `ansible27env` directory that is now in your `~/bin` directory.
+2. Clone the environment repo to it with `git clone https://github.com/rdbreak/ansible8env.git`
+3. Change to the `ansible8env` directory that is now in your `~/bin` directory.
 4. Run `vagrant up` to deploy the environment 
 
 ## Windows 
@@ -44,9 +44,9 @@ sudo snap install ruby ; sudo apt install ruby-bundler git -y; wget -c https://r
 
 ##### Once the above software is installed. Do the following if you're running the environment on Windows:
 1. Create a separate `~/bin` directory and `cd` to it.  (The directory doesn't have to be ~/bin, it can be anything you want.)
-2. Use your browser of choice and navigate to https://github.com/rdbreak/ansible27env, press the green “Clone or download” button then the “Download ZIP” button.
+2. Use your browser of choice and navigate to https://github.com/rdbreak/ansible8env, press the green “Clone or download” button then the “Download ZIP” button.
 3. Once downloaded, unzip the file and move it to the directory you created earlier, `~/bin` in the above example.
-3. Open CMD prompt as Administrator and cd to the `~/bin/ansible27env` directory then run `vagrant up` to deploy the environment
+3. Open CMD prompt as Administrator and cd to the `~/bin/ansible8env` directory then run `vagrant up` to deploy the environment
 
 **Also, don't be spooked by any scary red font during the setup process. There are known issues that won't have a negative affect on the environment.**
 
