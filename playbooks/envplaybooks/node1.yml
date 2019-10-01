@@ -6,14 +6,6 @@
   tasks:
   - name: Setting Hostname
     command: hostnamectl set-hostname node1.test.example.com
-  - name: Creating Ansible User
-    user:
-      name: user
-      shell: /bin/bash
-      groups: wheel
-      append: yes
-  - name: Changing User Password
-    shell: echo password | sudo passwd user --stdin
   - name: Fixing hosts file
     lineinfile:
       dest: /etc/hosts
@@ -44,6 +36,11 @@
       path: /etc/hosts
       line: 192.168.55.62 node2.test.example.com node2
       create: yes
+  - name: Adding node3 IP address to hosts file
+    lineinfile:
+      path: /etc/hosts
+      line: 192.168.55.63 node3.test.example.com node3
+      create: yes
   - name: Configuring network
     shell: nmcli con mod "System eth0" ipv4.addresses 192.168.55.61/24 ipv4.gateway 192.168.55.1 ipv4.dns 8.8.8.8 ipv4.method manual
   - name: Restarted Network
@@ -67,6 +64,8 @@
       path: /etc/profile.d/welcome.sh
       state: touch
       mode: 0755
+  - name: Erasing Repos
+    shell: rm -rf /etc/yum.repos.d/*
   - name: Building Welcome Message
     blockinfile:
       dest: /etc/profile.d/welcome.sh

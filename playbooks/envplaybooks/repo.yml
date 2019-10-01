@@ -6,14 +6,6 @@
   tasks:
   - name: Setting Hostname
     command: hostnamectl set-hostname repo.test.example.com
-  - name: Creating Ansible User
-    user:
-      name: user
-      shell: /bin/bash
-      groups: wheel
-      append: yes
-  - name: Changing User Password
-    shell: echo password | sudo passwd user --stdin
   - name: Fixing hosts file
     lineinfile:
       dest: /etc/hosts
@@ -39,15 +31,16 @@
       path: /etc/hosts
       line: 192.168.55.61 node1.test.example.com node1
       create: yes
-  - name: Adding node2 IP address to hosts file. Downloading Packages...
+  - name: Adding node2 IP address to hosts file.
     lineinfile:
       path: /etc/hosts
       line: 192.168.55.62 node2.test.example.com node2
       create: yes
-  - name: Downloading Repo Packages
-    shell: yum group install "Development Tools" "Server with GUI" "Web Server" "Directory Server" "Directory Client" "Python" -y --downloadonly --downloaddir=/var/www/html/rpms ;yum install -y man-pages httpd-manual selinux\* sssd\*
-  - name: Configuring Repo For System
-    shell: createrepo /var/www/html/rpms
+  - name: Adding node3 IP address to hosts file.
+    lineinfile:
+      path: /etc/hosts
+      line: 192.168.55.63 node3.test.example.com node3
+      create: yes
   - name: Enabling services
     shell: for i in httpd firewalld chronyd ; do systemctl enable $i;done
   - name: Starting services
@@ -61,24 +54,15 @@
     command: firewall-cmd --reload
   - name: Enabling IPV6
     shell: sysctl net.ipv6.conf.lo.disable_ipv6=0 ; sysctl net.ipv6.conf.all.disable_ipv6=0
-#  - name: Permissions Fixed. Configuring IPA server...(Est. Time - 7 minutes)
-#    shell: chmod 644 /usr/lib/python3.6/site-packages/urllib3/packages/ssl_match_hostname.py;chmod u+x /usr/lib/python3.6/site-packages/urllib3/packages/ssl_match_hostname.py 
   - name: Setting SELinux To Permissive
     shell: setenforce 0
-#    async: 1500
-#    poll: 0
-#    register: ipa_config_sleeper
-#    ignore_errors: yes
-#  - name: Still Working On IPA Configuration...It takes time ¯\_(ツ)_/¯
-#    async_status: jid={{ ipa_config_sleeper.ansible_job_id }}
-#    register: job_result
-#    until: job_result.finished
-#    retries: 200
   - name: Creating Welcome Message
     file:
       path: /etc/profile.d/welcome.sh
       state: touch
       mode: 0755
+  - name: Fixing SELinux Contexts
+    shell: restorecon -Rv /var/www/html
   - name: Building Welcome Message
     blockinfile:
       dest: /etc/profile.d/welcome.sh
