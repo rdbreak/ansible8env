@@ -1,68 +1,65 @@
 ---
-- hosts: repo
+- name: Configuring Repo Server
+  hosts: repo
   strategy: free
-  become: true
   gather_facts: false
+  ignore_errors:
   tasks:
   - name: Setting Hostname
-    command: hostnamectl set-hostname repo.test.example.com
-  - name: Fixing hosts file
+    hostname: name=repo.ansi.example.com
+  - name: Creating Ansible User
+    user:
+      name: user
+      shell: /bin/bash
+      groups: wheel
+      append: yes
+  - name: Changing User Password
+    shell: echo password | sudo passwd user --stdin
+  - name: Checking Sudoers Configuration
     lineinfile:
+      path: /etc/sudoers
+      regexp: '^# %users  localhost'
+      insertafter: '^# %users  localhost'
+      line: 'user ALL=(ALL) NOPASSWD: ALL'
+      state: present
+  - name: Building Host File
+    copy:
       dest: /etc/hosts
-      regexp: '^127\.0\.0\.1'
-      state: absent
-  - name: Rebuilding host file
-    lineinfile:
-      path: /etc/hosts
-      line: 127.0.0.1   localhost localhost.localdomain localhost4 localhost4.localdomain4
-      create: yes
-  - name: Adding control address to hosts file
-    lineinfile:
-      path: /etc/hosts
-      line: 192.168.55.60 control.test.example.com control
-      create: yes
-  - name: Adding Repo address to hosts file
-    lineinfile:
-      path: /etc/hosts
-      line: 192.168.55.59 repo.test.example.com repo
-      create: yes
-  - name: Adding node1 IP address to hosts file
-    lineinfile:
-      path: /etc/hosts
-      line: 192.168.55.61 node1.test.example.com node1
-      create: yes
-  - name: Adding node2 IP address to hosts file.
-    lineinfile:
-      path: /etc/hosts
-      line: 192.168.55.62 node2.test.example.com node2
-      create: yes
-  - name: Adding node3 IP address to hosts file.
-    lineinfile:
-      path: /etc/hosts
-      line: 192.168.55.63 node3.test.example.com node3
-      create: yes
-  - name: Enabling services
-    shell: for i in httpd firewalld chronyd ; do systemctl enable $i;done
-  - name: Starting services
-    shell: for i in httpd firewalld chronyd ; do systemctl start $i;done
-    ignore_errors: true
+      content: "127.0.0.1   localhost localhost.localdomain localhost4 localhost4.localdomain4\n192.168.55.60 repo.ansi.example.com repo\n192.168.55.60 control.ansi.example.com control\n192.168.55.61 node1.ansi.example.com node1\n192.168.55.62 node2.ansi.example.com node2\n192.168.55.63 node3.ansi.example.com node3"
+      force: yes
   - name: Starting Firewalld
-    service: name=firewalld state=started
+    service: name=firewalld state=started enabled=yes
   - name: Enabling Firewall Services
-    command: firewall-cmd --permanent --add-service=http --add-service=https --add-service=ntp --add-service=dns --add-service=kerberos --add-service=ldap --add-service=ldaps --add-service=ftp
-  - name: Reloading Firewall
-    command: firewall-cmd --reload
+    firewalld: 
+      service: "{{ item }}"
+      state: enabled
+      immediate: yes
+      permanent: yes
+    with_items:
+      - http
+      - https
+      - ntp
+      - dns
+      - kerberos
+      - ldap
+      - ldaps
+      - ftp
+  - name: Starting services
+    service: 
+      name: "{{ item }}"
+      state: started
+      enabled: yes
+    with_items:
+      - httpd
+      - firewalld
+      - chronyd
   - name: Enabling IPV6
     shell: sysctl net.ipv6.conf.lo.disable_ipv6=0 ; sysctl net.ipv6.conf.all.disable_ipv6=0
-  - name: Setting SELinux To Permissive
-    shell: setenforce 0
   - name: Creating Welcome Message
     file:
       path: /etc/profile.d/welcome.sh
       state: touch
       mode: 0755
-  - name: Fixing SELinux Contexts
-    shell: restorecon -Rv /var/www/html
   - name: Building Welcome Message
     blockinfile:
       dest: /etc/profile.d/welcome.sh
@@ -87,9 +84,13 @@
          #
          # You are logged into `hostname`
          # This system is running `cat /etc/redhat-release`
-         # kernel is `uname -r`
          #
          # You are logged in as `whoami`
          #
          "
+  - name: Disabling services then rebooting
+    selinux: 
+      state: disabled
+  - name: Rebooted Server
+    reboot:
 ...
