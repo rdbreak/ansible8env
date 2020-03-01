@@ -17,6 +17,8 @@
       append: yes
   - name: Changing User Password
     shell: echo password | sudo passwd user --stdin
+  - name: Changing Root Password
+    shell: echo password | sudo passwd root --stdin
   - name: Checking Sudoers Configuration
     lineinfile:
       path: /etc/sudoers

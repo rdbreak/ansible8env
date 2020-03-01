@@ -32,13 +32,14 @@ systemctl stop packagekit; yum install -y epel-release && yum install -y git bin
 ##### Also, install the Virtualbox extension pack below
 - [Install the Virtual Box Extension Pack](https://www.virtualbox.org/wiki/Downloads)
 
-## Windows/Fedora 30
+## Windows/Fedora
+- If using Windows:
 - [Install the Latest Version of Vagrant](https://www.vagrantup.com/downloads.html)
 - [Install the Latest Version of Virtualbox and Virtual Box Extension Pack](https://www.virtualbox.org/wiki/Downloads)
-- If on Windows, install the following vagrant plugin via PowerShell as Administrator `vagrant plugin install vagrant-guest_ansible` 
-- If on Linux, install the remaining dependencies:
+- Then install the following vagrant plugin via PowerShell as Administrator `vagrant plugin install vagrant-guest_ansible` 
+- If using Fedora, run `dnf update -y` to update your system, then run the script below as root to install everything at once:
 ```
-vagrant plugin install vagrant-guest_ansible ; sudo dnf install -y git binutils gcc make patch libgomp glibc-headers glibc-devel kernel-headers kernel-devel dkms libvirt libvirt-devel ruby-devel libxslt-devel libxml2-devel 
+dnf -y install wget git binutils gcc make patch libgomp glibc-headers glibc-devel kernel-headers kernel-devel dkms libvirt libvirt-devel ruby-devel libxslt-devel libxml2-devel ; wget http://download.virtualbox.org/virtualbox/rpm/fedora/virtualbox.repo ; mv virtualbox.repo /etc/yum.repos.d/virtualbox.repo ; dnf install -y VirtualBox-6.0 ; usermod -a -G vboxusers ${USER} ; /usr/lib/virtualbox/vboxdrv.sh setup ; dnf -y install vagrant ; dnf remove -y rubygem-fog-core ; vagrant plugin install vagrant-guest_ansible
 ```
 
 ##### Once the above software is installed. Do the following if you're running the environment on Windows:
@@ -53,7 +54,7 @@ _NOTE - If it's been awhile since you've run apt update, do that first. Reboot i
 
 ##### Install all at once by Copy/Pasting the below command into your terminal as root.
 ```
-sudo snap install ruby ; sudo apt install ruby-bundler git -y; wget -c https://releases.hashicorp.com/vagrant/2.2.5/vagrant_2.2.6_x86_64.deb ; sudo dpkg -i vagrant_2.2.6_x86_64.deb ; wget -q https://www.virtualbox.org/download/oracle_vbox_2016.asc -O- | sudo apt-key add - ; wget -q https://www.virtualbox.org/download/oracle_vbox.asc -O- | sudo apt-key add - ; sudo add-apt-repository "deb http://download.virtualbox.org/virtualbox/debian bionic contrib"; sudo apt update; sudo apt install -y virtualbox-6.0 ; vagrant plugin install vagrant-guest_ansible
+sudo snap install ruby ; sudo apt install ruby-bundler git -y; wget -c https://releases.hashicorp.com/vagrant/2.2.6/vagrant_2.2.6_x86_64.deb ; sudo dpkg -i vagrant_2.2.6_x86_64.deb ; wget -q https://www.virtualbox.org/download/oracle_vbox_2016.asc -O- | sudo apt-key add - ; wget -q https://www.virtualbox.org/download/oracle_vbox.asc -O- | sudo apt-key add - ; sudo add-apt-repository "deb http://download.virtualbox.org/virtualbox/debian bionic contrib"; sudo apt update; sudo apt install -y virtualbox-6.0 ; vagrant plugin install vagrant-guest_ansible
 ```
 ##### Also, install the Virtualbox extension pack below
 - [Virtual Box Extension Pack](https://www.virtualbox.org/wiki/Downloads)
